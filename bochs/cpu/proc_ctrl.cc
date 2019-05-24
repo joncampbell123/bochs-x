@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: proc_ctrl.cc 13466 2018-02-16 07:57:32Z sshwarts $
+// $Id: proc_ctrl.cc 13528 2018-08-26 18:11:10Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -306,32 +306,17 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::CLFLUSH(bxInstruction_c *i)
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::CLZERO(bxInstruction_c *i)
 {
+#if BX_CPU_LEVEL >= 6
   bx_address eaddr = RAX & ~BX_CONST64(CACHE_LINE_SIZE-1) & i->asize_mask();
 
-#if BX_SUPPORT_EVEX
-  BxPackedZmmRegister zmmzero;
+  BxPackedZmmRegister zmmzero; // zmm is always made available even if EVEX is not compiled in
   zmmzero.clear();
   for (unsigned n=0; n<CACHE_LINE_SIZE; n += 64) {
     write_virtual_zmmword(i->seg(), eaddr+n, &zmmzero);
   }
-#elif BX_SUPPORT_AVX
-  BxPackedYmmRegister ymmzero;
-  ymmzero.clear();
-  for (unsigned n=0; n<CACHE_LINE_SIZE; n += 32) {
-    write_virtual_ymmword(i->seg(), eaddr+n, &ymmzero);
-  }
-#elif BX_CPU_LEVEL >= 6
-  BxPackedXmmRegister xmmzero;
-  xmmzero.clear();
-  for (unsigned n=0; n<CACHE_LINE_SIZE; n += 16) {
-    write_virtual_xmmword(i->seg(), eaddr+n, &xmmzero);
-  }
-#else
-  Bit64u val_64 = 0;
-  for (unsigned n=0; n<CACHE_LINE_SIZE; n += 8) {
-    write_virtual_qword(i->seg(), eaddr+n, val_64);
-  }
 #endif
+
+  BX_NEXT_INSTR(i);
 }
 
 void BX_CPU_C::handleCpuModeChange(void)

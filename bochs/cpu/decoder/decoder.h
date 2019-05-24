@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: decoder.h 13372 2017-12-05 19:23:41Z sshwarts $
+// $Id: decoder.h 13556 2019-02-22 19:15:53Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-2017  The Bochs Project
+//  Copyright (C) 2016-2019  The Bochs Project
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@
 #define BX_X86_DECODER_H
 
 // x86 Arch features
-enum {
+enum x86_feature_name {
   BX_ISA_386 = 0,                 /* 386 or earlier instruction */
   BX_ISA_X87,                     /* FPU (X87) instruction */
   BX_ISA_486,                     /* 486 new instruction */
@@ -44,6 +44,7 @@ enum {
   BX_ISA_CLFLUSH,                 /* CLFLUSH instruction */
   BX_ISA_CLFLUSHOPT,              /* CLFLUSHOPT instruction */
   BX_ISA_CLWB,                    /* CLWB instruction */
+  BX_ISA_CLDEMOTE,                /* CLDEMOTE instruction */
   BX_ISA_SSE,                     /* SSE  instruction */
   BX_ISA_SSE2,                    /* SSE2 instruction */
   BX_ISA_SSE3,                    /* SSE3 instruction */
@@ -53,6 +54,7 @@ enum {
   BX_ISA_POPCNT,                  /* POPCNT instruction */
   BX_ISA_MONITOR_MWAIT,           /* MONITOR/MWAIT instruction */
   BX_ISA_MONITORX_MWAITX,         /* MONITORX/MWAITX instruction (AMD) */
+  BX_ISA_WAITPKG,                 /* TPAUSE/UMONITOR/UMWAIT instructions */
   BX_ISA_VMX,                     /* VMX instruction */
   BX_ISA_SMX,                     /* SMX instruction */
   BX_ISA_LONG_MODE,               /* Long Mode (x86-64) support */

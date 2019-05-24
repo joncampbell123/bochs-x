@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: hdimage.cc 13478 2018-03-27 17:47:46Z vruppert $
+// $Id: hdimage.cc 13506 2018-05-11 07:44:49Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2002-2018  The Bochs Project
@@ -231,10 +231,17 @@ int hdimage_open_file(const char *pathname, int flags, Bit64u *fsize, FILETIME *
   sprintf(lockfn, "%s.lock", pathname);
   lockfd = ::open(lockfn, O_RDONLY);
   if (lockfd >= 0) {
-    // Opening image must fail if lock file exists.
     ::close(lockfd);
-    BX_ERROR(("image locked: '%s'", pathname));
-    return -1;
+    if (SIM->get_param_bool(BXPN_UNLOCK_IMAGES)->get()) {
+      // Remove lock file if requested
+      if (access(lockfn, F_OK) == 0) {
+        unlink(lockfn);
+      }
+    } else {
+      // Opening image must fail if lock file exists.
+      BX_ERROR(("image locked: '%s'", pathname));
+      return -1;
+    }
   }
 #endif
 
@@ -2153,7 +2160,15 @@ int undoable_image_t::open(const char* pathname, int flags)
     return -1;
 
   hd_size = ro_disk->hd_size;
-  sect_size = ro_disk->hd_size;
+  if (ro_disk->get_capabilities() & HDIMAGE_HAS_GEOMETRY) {
+    cylinders = ro_disk->cylinders;
+    heads = ro_disk->heads;
+    spt = ro_disk->spt;
+    caps = HDIMAGE_HAS_GEOMETRY;
+  } else if (cylinders == 0) {
+    caps = HDIMAGE_AUTO_GEOMETRY;
+  }
+  sect_size = ro_disk->sect_size;
 
   // If not set, we make up the redolog filename from the pathname
   if (redolog_name == NULL) {
@@ -2300,7 +2315,15 @@ int volatile_image_t::open(const char* pathname, int flags)
     return -1;
 
   hd_size = ro_disk->hd_size;
-  sect_size = ro_disk->hd_size;
+  if (ro_disk->get_capabilities() & HDIMAGE_HAS_GEOMETRY) {
+    cylinders = ro_disk->cylinders;
+    heads = ro_disk->heads;
+    spt = ro_disk->spt;
+    caps = HDIMAGE_HAS_GEOMETRY;
+  } else if (cylinders == 0) {
+    caps = HDIMAGE_AUTO_GEOMETRY;
+  }
+  sect_size = ro_disk->sect_size;
 
   // If not set, use pathname as template
   if (redolog_name == NULL) {

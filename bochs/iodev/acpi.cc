@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: acpi.cc 13470 2018-02-24 18:04:36Z vruppert $
+// $Id: acpi.cc 13497 2018-05-01 15:54:37Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2006-2018  The Bochs Project
@@ -317,6 +317,8 @@ Bit32u bx_acpi_ctrl_c::read(Bit32u address, unsigned io_len)
         value = BX_ACPI_THIS get_pmtmr();
         break;
       case 0x0c: // GPSTS
+      case 0x14: // PLVL2
+      case 0x15: // PLVL3
       case 0x18: // GLBSTS
       case 0x1c: // DEVSTS
       case 0x30: // GPI
@@ -325,9 +327,9 @@ Bit32u bx_acpi_ctrl_c::read(Bit32u address, unsigned io_len)
         value = 0x00;
         break;
       default:
-        BX_INFO(("read from PM register 0x%02x not implemented yet", reg));
+        BX_INFO(("read from PM register 0x%02x not implemented yet (len=%d)", reg, io_len));
     }
-    BX_DEBUG(("read from PM register 0x%02x returns 0x%08x", reg, value));
+    BX_DEBUG(("read from PM register 0x%02x returns 0x%08x (len=%d)", reg, value, io_len));
   } else {
     if (((BX_ACPI_THIS pci_conf[0x04] & 0x01) == 0) &&
         ((BX_ACPI_THIS pci_conf[0xd2] & 0x01) == 0)) {
@@ -389,7 +391,7 @@ void bx_acpi_ctrl_c::write(Bit32u address, Bit32u value, unsigned io_len)
     if ((BX_ACPI_THIS pci_conf[0x80] & 0x01) == 0) {
       return;
     }
-    BX_DEBUG(("write to PM register 0x%02x, value = 0x%04x", reg, value));
+    BX_DEBUG(("write to PM register 0x%02x, value = 0x%08x (len=%d)", reg, value, io_len));
     switch (reg) {
       case 0x00:
         {
@@ -431,7 +433,7 @@ void bx_acpi_ctrl_c::write(Bit32u address, Bit32u value, unsigned io_len)
         }
         break;
       default:
-        BX_INFO(("write to PM register 0x%02x not implemented yet", reg));
+        BX_INFO(("write to PM register 0x%02x not implemented yet (len=%d)", reg, io_len));
     }
   } else if ((address & 0xfff0) == BX_ACPI_THIS s.sm_base) {
     if (((BX_ACPI_THIS pci_conf[0x04] & 0x01) == 0) &&
@@ -495,6 +497,7 @@ void bx_acpi_ctrl_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_
   if ((address >= 0x10) && (address < 0x34))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
     value8 = (value >> (i*8)) & 0xFF;
     oldval = BX_ACPI_THIS pci_conf[address+i];
@@ -542,13 +545,6 @@ set_value:
        BX_INFO(("new SM base address: 0x%04x", BX_ACPI_THIS s.sm_base));
     }
   }
-
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%02x", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%04x", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%08x", address, value));
 }
 
 #endif // BX_SUPPORT_PCI

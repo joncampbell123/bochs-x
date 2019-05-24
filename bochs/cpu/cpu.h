@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: cpu.h 13466 2018-02-16 07:57:32Z sshwarts $
+// $Id: cpu.h 13546 2019-01-27 18:52:03Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2001-2017  The Bochs Project
+//  Copyright (C) 2001-2018  The Bochs Project
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -3807,19 +3807,19 @@ public: // for now...
   BX_SMF void VPDPWSSD_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
   BX_SMF void VPDPWSSDS_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
 
-  BX_SMF void VPSHLW_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHLWV_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHLD_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHLDV_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHLQ_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHLQV_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHLDW_MASK_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHLDVW_MASK_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHLDD_MASK_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHLDVD_MASK_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHLDQ_MASK_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHLDVQ_MASK_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
 
-  BX_SMF void VPSHRW_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHRWV_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHRD_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHRDV_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHRQ_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
-  BX_SMF void VPSHRQV_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHRDW_MASK_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHRDVW_MASK_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHRDD_MASK_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHRDVD_MASK_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHRDQ_MASK_VdqHdqWdqIbR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
+  BX_SMF void VPSHRDVQ_MASK_VdqHdqWdqR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
 #endif
 
   BX_SMF void LZCNT_GwEwR(bxInstruction_c *) BX_CPP_AttrRegparmN(1);
@@ -4341,7 +4341,7 @@ public: // for now...
   BX_SMF bx_bool  dbg_instruction_epilog(void);
 #endif
 #if BX_DEBUGGER || BX_DISASM || BX_INSTRUMENTATION || BX_GDBSTUB
-  BX_SMF bx_bool  dbg_xlate_linear2phy(bx_address linear, bx_phy_address *phy, bx_bool verbose = 0);
+  BX_SMF bx_bool  dbg_xlate_linear2phy(bx_address linear, bx_phy_address *phy, bx_address *lpf_mask = 0, bx_bool verbose = 0);
 #if BX_SUPPORT_VMX >= 2
   BX_SMF bx_bool dbg_translate_guest_physical(bx_phy_address guest_paddr, bx_phy_address *phy, bx_bool verbose = 0);
 #endif
@@ -4391,14 +4391,10 @@ public: // for now...
 #if BX_CPU_LEVEL >= 6
   BX_SMF void read_linear_xmmword(unsigned seg, bx_address off, BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_linear_xmmword_aligned(unsigned seg, bx_address off, BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
-#if BX_SUPPORT_AVX
   BX_SMF void read_linear_ymmword(unsigned seg, bx_address off, BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_linear_ymmword_aligned(unsigned seg, bx_address off, BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
-#if BX_SUPPORT_EVEX
   BX_SMF void read_linear_zmmword(unsigned seg, bx_address off, BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_linear_zmmword_aligned(unsigned seg, bx_address off, BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
 #endif
 
   BX_SMF void write_linear_byte(unsigned seg, bx_address offset, Bit8u data) BX_CPP_AttrRegparmN(3);
@@ -4408,14 +4404,10 @@ public: // for now...
 #if BX_CPU_LEVEL >= 6
   BX_SMF void write_linear_xmmword(unsigned seg, bx_address offset, const BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_linear_xmmword_aligned(unsigned seg, bx_address offset, const BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
-#if BX_SUPPORT_AVX
   BX_SMF void write_linear_ymmword(unsigned seg, bx_address off, const BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_linear_ymmword_aligned(unsigned seg, bx_address off, const BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
-#if BX_SUPPORT_EVEX
   BX_SMF void write_linear_zmmword(unsigned seg, bx_address off, const BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_linear_zmmword_aligned(unsigned seg, bx_address off, const BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
 #endif
 
   BX_SMF void tickle_read_linear(unsigned seg, bx_address offset) BX_CPP_AttrRegparmN(2);
@@ -4429,14 +4421,10 @@ public: // for now...
 #if BX_CPU_LEVEL >= 6
   BX_SMF void read_virtual_xmmword_32(unsigned seg, Bit32u off, BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_virtual_xmmword_aligned_32(unsigned seg, Bit32u off, BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
-#if BX_SUPPORT_AVX
   BX_SMF void read_virtual_ymmword_32(unsigned seg, Bit32u off, BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_virtual_ymmword_aligned_32(unsigned seg, Bit32u off, BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
-#if BX_SUPPORT_EVEX
   BX_SMF void read_virtual_zmmword_32(unsigned seg, Bit32u off, BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_virtual_zmmword_aligned_32(unsigned seg, Bit32u off, BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
 #endif
 
   BX_SMF void write_virtual_byte_32(unsigned seg, Bit32u offset, Bit8u data) BX_CPP_AttrRegparmN(3);
@@ -4446,14 +4434,10 @@ public: // for now...
 #if BX_CPU_LEVEL >= 6
   BX_SMF void write_virtual_xmmword_32(unsigned seg, Bit32u offset, const BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_virtual_xmmword_aligned_32(unsigned seg, Bit32u offset, const BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
-#if BX_SUPPORT_AVX
   BX_SMF void write_virtual_ymmword_32(unsigned seg, Bit32u off, const BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_virtual_ymmword_aligned_32(unsigned seg, Bit32u off, const BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
-#if BX_SUPPORT_EVEX
   BX_SMF void write_virtual_zmmword_32(unsigned seg, Bit32u off, const BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_virtual_zmmword_aligned_32(unsigned seg, Bit32u off, const BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
 #endif
 
   BX_SMF Bit8u read_virtual_byte(unsigned seg, bx_address offset) BX_CPP_AttrRegparmN(2);
@@ -4463,14 +4447,10 @@ public: // for now...
 #if BX_CPU_LEVEL >= 6
   BX_SMF void read_virtual_xmmword(unsigned seg, bx_address off, BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_virtual_xmmword_aligned(unsigned seg, bx_address off, BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
-#if BX_SUPPORT_AVX
   BX_SMF void read_virtual_ymmword(unsigned seg, bx_address off, BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_virtual_ymmword_aligned(unsigned seg, bx_address off, BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
-#if BX_SUPPORT_EVEX
   BX_SMF void read_virtual_zmmword(unsigned seg, bx_address off, BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void read_virtual_zmmword_aligned(unsigned seg, bx_address off, BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
 #endif
 
   BX_SMF void write_virtual_byte(unsigned seg, bx_address offset, Bit8u data) BX_CPP_AttrRegparmN(3);
@@ -4480,14 +4460,10 @@ public: // for now...
 #if BX_CPU_LEVEL >= 6
   BX_SMF void write_virtual_xmmword(unsigned seg, bx_address offset, const BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_virtual_xmmword_aligned(unsigned seg, bx_address offset, const BxPackedXmmRegister *data) BX_CPP_AttrRegparmN(3);
-#if BX_SUPPORT_AVX
   BX_SMF void write_virtual_ymmword(unsigned seg, bx_address off, const BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_virtual_ymmword_aligned(unsigned seg, bx_address off, const BxPackedYmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
-#if BX_SUPPORT_EVEX
   BX_SMF void write_virtual_zmmword(unsigned seg, bx_address off, const BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
   BX_SMF void write_virtual_zmmword_aligned(unsigned seg, bx_address off, const BxPackedZmmRegister *data) BX_CPP_AttrRegparmN(3);
-#endif
 #endif
 
   BX_SMF Bit8u read_RMW_linear_byte(unsigned seg, bx_address offset) BX_CPP_AttrRegparmN(2);
